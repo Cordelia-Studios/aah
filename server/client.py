@@ -1,7 +1,7 @@
 import socket
 
 target_host="127.0.0.1"
-target_port=9090
+target_port=666
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
