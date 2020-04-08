@@ -9,13 +9,13 @@ def joingame( dictionary , games ):
         game = Game
         game.room = dictionary["room"]
         game.groups = dictionary["groups"]
+        games[Game.room]= game
         print("Game created")
-    game = games[ dictionary["room"] ]
     print("User %s is joining the room %s..." % ( dictionary["username"], dictionary["room"]))
-    Game.users[dictionary["username"]] = {
+    game.users[dictionary["username"]] = {
         "score": 0
     }
-    games[Game.room]= game
+    print("Succe")
     return None
 
 def playcard( dictionary, games ):
@@ -45,6 +45,7 @@ def playedcards( dictionary, games ):
     print("Returning played cards...")
     game = games[ dictionary["room"] ]
     cards = game.deck_white
+    print("Success")
     return cards
 
 def newcard( dictionary, games ):

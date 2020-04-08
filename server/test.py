@@ -1,7 +1,7 @@
 import socket
 
 target_host="127.0.0.1"
-target_port=666
+target_port=669
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
@@ -10,7 +10,7 @@ client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
-client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny" "groups":[ { "name": "aah", "max": 9000 } ]}'.encode())
+client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny", "groups":[ { "name": "aah", "max": 9000 } ]}'.encode())
 client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)

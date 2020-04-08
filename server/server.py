@@ -4,7 +4,7 @@ import messages as m
 import json
 
 bind_ip="127.0.0.1"
-bind_port=666
+bind_port=669
 
 server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
