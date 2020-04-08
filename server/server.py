@@ -4,7 +4,7 @@ import messages as m
 import json
 
 bind_ip="127.0.0.1"
-bind_port=669
+bind_port=666
 
 server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
@@ -17,14 +17,13 @@ print("I'm  listening on %s on the port %d" % (bind_ip,bind_port))
 games = {}
 
 functions = {
-    "GAMEINFO": m.gameinfo,
     "PLAYCARD": m.playcard,
     "CHOOSECARD": m.choosecard,
     "JOINGAME": m.joingame,
     "PLAYEDCARDS": m.playedcards,
     "NEWCARD": m.newcard,
     "PENDINGPLAYERS": m.pendingplayers,
-    "PLAYERSSTATE": m.playersstate,
+    "ROUNDSTATE": m.roundstate,
 }
 
 def handle_client(client_socket):

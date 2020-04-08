@@ -1,21 +1,16 @@
 import socket
 
 target_host="127.0.0.1"
-target_port=669
+target_port=666
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
-client.send('GAMEINFO::{"room":"unnamed", "groups":[ { "name": "aah", "max": 9000 } ]} '.encode())
+client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "groups":[ { "name": "aah", "max": 9000 } ]}'.encode())
 client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
-client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy" }'.encode())
-client.close()
-
-client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((target_host,target_port))
-client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny" }'.encode())
+client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny" "groups":[ { "name": "aah", "max": 9000 } ]}'.encode())
 client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -51,7 +46,7 @@ client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
-client.send('PLAYERSSTATE::{"room": "unnamed"}'.encode())
+client.send('ROUNDSTATE::{"room": "unnamed"}'.encode())
 response=client.recv(4096)
 print( response )
 client.close()

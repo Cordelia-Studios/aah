@@ -2,17 +2,15 @@ from game import Game
 import json
 import random
 
-def gameinfo( dictionary , games):
-    print("Creating game %s..." % dictionary["room"] )
-    game = Game
-    Game.room = dictionary["room"]
-    Game.groups = dictionary["groups"]
-    print("Game created")
-    games[Game.room] = game
-    return None
-
 def joingame( dictionary , games ):
-    game = games[dictionary["room"] ]
+    game = games.get( dictionary["room"], False )
+    if not game:
+        print("Creating game %s..." % dictionary["room"] )
+        game = Game
+        game.room = dictionary["room"]
+        game.groups = dictionary["groups"]
+        print("Game created")
+    game = games[ dictionary["room"] ]
     print("User %s is joining the room %s..." % ( dictionary["username"], dictionary["room"]))
     Game.users[dictionary["username"]] = {
         "score": 0
@@ -61,10 +59,12 @@ def pendingplayers( dictionary, games ):
     print("Returning pending players...")
     game = games[ dictionary["room"] ]
     cards = game.deck_white
+    # TO-DO: Number of pending players
     return cards
 
-def playersstate( dictionary, games ):
+def roundstate( dictionary, games ):
     print("Returning players state...")
     game = games[ dictionary["room"] ]
     players = game.users
+    # TO-DO: Deck played
     return players
