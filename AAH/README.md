@@ -60,9 +60,11 @@ None
 #### Response
 
 - cards: List of cards played.
-  - id: Id of the card, equals to the number of line in the file.
-  - group: Name of the group, equals to the name of the file.
-  - text: Text of the card.
+  - username: Username of the player.
+  - card: Card played.
+    - id: Id of the card, equals to the number of line in the file.
+    - group: Name of the group, equals to the name of the file.
+    - text: Text of the card.
 
 #### NEWCARD
 

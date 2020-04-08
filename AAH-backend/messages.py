@@ -59,9 +59,9 @@ def newcard( dictionary, games ):
 def pendingplayers( dictionary, games ):
     print("Returning pending players...")
     game = games[ dictionary["room"] ]
-    cards = game.deck_white
+    pp = len(game.users) - len(game.deck_white)
     # TO-DO: Number of pending players
-    return cards
+    return pp
 
 def roundstate( dictionary, games ):
     print("Returning players state...")
