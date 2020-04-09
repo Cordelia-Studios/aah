@@ -3,19 +3,10 @@ import socket
 target_host="127.0.0.1"
 target_port=670
 
-origin_host="127.0.0.1"
-origin_port=671
-
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
 print("Joining game...")
-client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "decks":["BASE"]}'.encode())
-print(client.recv(4096).decode("utf-8"))
-while True:
-	message = input("Code?")
-	if message == "1":
-		client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "decks":["BASE"]}'.encode())
-		print(client.recv(4096).decode("utf-8"))
+client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny", "groups":[ { "name": "aah", "max": 9000 } ]}'.encode())
 
 """
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)

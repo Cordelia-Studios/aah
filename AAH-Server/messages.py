@@ -1,71 +1,107 @@
 from game import Game
+import decks
 import json
 import random
 
-def joingame( dictionary , games ):
-    game = games.get( dictionary["room"], False )
-    if not game:
-        print("Creating game %s..." % dictionary["room"] )
-        game = Game
-        game.room = dictionary["room"]
-        game.groups = dictionary["groups"]
-        games[Game.room]= game
-        print("Game created")
-    print("User %s is joining the room %s..." % ( dictionary["username"], dictionary["room"]))
-    game.users[dictionary["username"]] = {
-        "score": 0
-    }
-    print("Succe")
-    return None
 
-def playcard( dictionary, games ):
-    game = games[dictionary["room"] ]
-    print("User %s is playing %s..." % (dictionary["username"], dictionary["card"]["text"] ))
-    game.deck_white.append(
+def joingame( message_data , games ):
+    game = games.get( message_data["room"], False )
+
+    # Create new game if room doesn't exists
+    if not game:
+        print("Creating game %s..." % message_data["room"] )
+        game = Game
+        game.room_id = message_data["room"]
+        use_decks = message_data["decks"]
+        print("Shuffling decks...")
+        game.white_deck, game.black_deck = decks.shuffle(game.white_deck, game.black_deck, use_decks)
+        games[Game.room_id] = game
+        print("Game created")
+    print("User %s is joining the room %s..." % ( message_data["username"], message_data["room"]))
+
+    # Search for existing user
+    existing = False
+    for player in game.players:
+    	if player["username"] == message_data["username"]:
+    		existing = True
+    		break
+    if not existing:
+	    game.players.append({
+	    	"username": message_data["username"],
+			"hand": [],
+			"score": 0
+	    })
+    print("Success")
+    return game
+
+
+def startgame(message_data, games):
+	game = games[message_data["room"]]
+	game.choosen_player = game.players[0]
+	game.phase = 0
+	return game.choosen_player
+
+def setChooser(message_data, games):
+	game = games.message_data["room"]
+	for i in range(len(game.players)):
+		if(game.players[i]["username"]==game.choosen_player):
+			game.choosen_player = game.players[(i+1)%len(game.players)]
+	return game.choosen_player
+
+
+def playcard( message_data, games ):
+    game = games[message_data["room"]]
+    print("User %s is playing %s..." % (message_data["username"], message_data["cards"] ))
+    message_cards = []
+    for card in message_data["cards"]:
+    	message_cards.append([card["id"],card["pack"]])
+    game.round_cards.append(
         {
-            "username": dictionary["username"],
-            "card": dictionary["card"]
+            "player": message_data["username"],
+            "cards": message_cards
         }
     )
-
     return None
 
-def choosecard( dictionary, games ):
+def choosecard( message_data, games ):
     print("Choosing winner card...")
-    game = games[dictionary["room"] ]
-    game.last_winned = {
-            "username": dictionary["username"],
-            "card": dictionary["card"]
+    game = games[message_data["room"]]
+    message_cards = []
+    for card in message_data["cards"]:
+    	message_cards.append([card["id"],card["pack"]])
+    game.round_winner = {
+            "username": message_data["username"],
+            "cards": message_cards
         }
-    game.deck_white = []
-    game.users[dictionary["username"]]["score"] += 20;
+    game.players[message_data["username"]]["score"] += 20;
     return None
 
-def playedcards( dictionary, games ):
+def playedcards( message_data, games ):
     print("Returning played cards...")
-    game = games[ dictionary["room"] ]
-    cards = game.deck_white
+    game = games[ message_data["room"] ]
+    cards = game.round_cards
     print("Success")
     return cards
 
-def newcard( dictionary, games ):
-    print("Getting a random card...")
-    game = games[ dictionary["room"] ]
-    group = random.choice( list(game.groups) )
-    r1 = random.randint(1, group["max"])
-    # TO-DO: Ignorar las que ya salieron
-    return {"group": group["name"], "number": r1}
+def newcard( message_data, games ):
+	print("Giving new cards...")
+	game = games[ message_data["room"] ]
+	new_card = game.white_deck.pop()
+	game.players[message_data["username"]]["hand"].append(new_card)
+	game.used_white_cards.append(new_card)
+	return {new_card}
 
-def pendingplayers( dictionary, games ):
+def pendingplayers( message_data, games ):
     print("Returning pending players...")
-    game = games[ dictionary["room"] ]
-    pp = len(game.users) - len(game.deck_white)
+    game = games[ message_data["room"] ]
+    pp = len(game.players) - len(game.round_cards["cards"])
     # TO-DO: Number of pending players
     return pp
 
-def roundstate( dictionary, games ):
+def roundstate( message_data, games ):
     print("Returning players state...")
-    game = games[ dictionary["room"] ]
+    game = games[ message_data["room"] ]
     players = game.users
     # TO-DO: Deck played
     return players
+

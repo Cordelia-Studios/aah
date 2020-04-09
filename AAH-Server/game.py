@@ -1,43 +1,48 @@
 class Game:
-    room = ""
-    groups = [
-        # {
-        #     "name": "aah",
-        #     "max": 9000,
-        # }
-    ]
-    usedcards = [
-        # {
-        #     "name": "aah",
-        #     "number": {
-                    # "used": {
-                    #     "1": True,
-                    #     "89": True,
-                    # }
-        #       },
-        # }
-    ]
+	room_id = ""
+	players = [
+	    # {
+	    #	  username": "Paco"
+	    #	  "hand": [["aahW",85],["aahW",5],...]
+		#	  "score": 0
+		#	  "socket": player socket
+	    # }
+	]
 
-    state = 0
-    round = 1
+	round_phase = -1
+	round = 1
 
-    deck_black = [
+	black_deck = [
+		# ids ->  ["aahW",56,#Whites], ["aahW",1,#Whites]
+	]
 
-    ]
+	white_deck = [
+		# ids ->  ["aahB",56], ["aahB",1]
+	]
 
-    deck_white = [
+	used_white_cards = [
+	    # poped white card ids
+	]
 
-    ]
+	used_black_cards = [
+	    # poped black card ids
+	]
 
-    last_winned = {
-        # "username": "username",
-        # "card" : {
-        #     "word" :
-        # }
-    }
+	round_winner = {
+	    # "username": "username",
+	    # "cards" : [["pack",#id],["pack",#id]]
+	}
 
-    users = {
-        # "username": {
-        #     score: 0,
-        # }
-    }
+	round_cards = [
+		# {
+		# "player": "playerId"
+		# "cards": [["aahW",56],["aahW",56]]
+		# "black": ["aahB",20]
+		# }
+	]
+
+	choosen_player = ""
+
+
+
+
