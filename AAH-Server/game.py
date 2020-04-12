@@ -5,11 +5,10 @@ class Game:
 	    #	  username": "Paco"
 	    #	  "hand": [["aahW",85],["aahW",5],...]
 		#	  "score": 0
-		#	  "socket": player socket
 	    # }
 	]
 
-	round_phase = -1
+	round_phase = -1 # -1 - Non started game / 0 - White cards play Phase / 1 - Choose winner phase 
 	round = 1
 
 	black_deck = [
@@ -31,15 +30,18 @@ class Game:
 	round_winner = {
 	    # "username": "username",
 	    # "cards" : [["pack",#id],["pack",#id]]
+	    # "black": ["pack",#id]
 	}
 
-	round_cards = [
-		# {
-		# "player": "playerId"
-		# "cards": [["aahW",56],["aahW",56]]
-		# "black": ["aahB",20]
-		# }
-	]
+	round_cards = {
+		# "cards": [
+		#	["username",["aahW",56],["aahW",57]],
+		#	["Paco    ",["aahW",65],["aahW",66]]
+		#]
+		# "black": ["aahB",20,2]
+	}
+
+	left_players = []
 
 	choosen_player = ""
 

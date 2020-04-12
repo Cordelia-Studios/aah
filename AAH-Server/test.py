@@ -13,16 +13,32 @@ client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "decks":["BAS
 print(client.recv(4096).decode("utf-8"))
 while True:
 	message = input("Code?")
-	if message == "1":
-		client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "decks":["BASE"]}'.encode())
+	elif message == "1":
+		client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny", "decks":["BASE"]}'.encode())
 		print(client.recv(4096).decode("utf-8"))
 
+	elif message == "2":
+		client.send('STARTGAME::{"room":"unnamed", "username": "cutepussy"}'.encode())
+		print(client.recv(4096).decode("utf-8"))
+
+	elif message == "3":
+		client.send('PLAYCARD::{"room":"unnamed", "username": "cutepussy", "cards":[["aahW",54]]}'.encode())
+		print(client.recv(4096).decode("utf-8"))
+
+	elif message == "4":
+		client.send('NEWCARD::{"room":"unnamed", "username": "cutepussy", "cards":2}'.encode())
+		print(client.recv(4096).decode("utf-8"))
+
+	elif message == "5":
+		client.send('CHOOSECARD::{"room":"unnamed", "username": "cutepussy", "winner":"goodbunny"}'.encode())
+		print(client.recv(4096).decode("utf-8"))
+
+	elif message == "10":
+		print(client.recv(4096).decode("utf-8"))
+
+	elif message == "11":
+		client.close()
 """
-client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((target_host,target_port))
-print("Joining game...")
-client.send('STARTGAME::{"room":"unnamed"}'.encode())
-client.close()
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))

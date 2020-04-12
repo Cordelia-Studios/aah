@@ -16,17 +16,17 @@ server.listen(5)
 print("I'm  listening on %s on the port %d" % (bind_ip,bind_port))
 
 games = {}
+# Have the actual socket of each player in each game room
 clients = {}
 
 functions = {
-    "STARTGAME": m.startgame,
-    "PLAYCARD": m.playcard,
-    "CHOOSECARD": m.choosecard,
-    "JOINGAME": m.joingame,
-    "PLAYEDCARDS": m.playedcards,
-    "NEWCARD": m.newcard,
-    "PENDINGPLAYERS": m.pendingplayers,
-    "ROUNDSTATE": m.roundstate,
+	"STARTGAME": m.startgame,
+	"JOINGAME": m.joingame,
+	"PLAYCARD": m.playcard,
+	"CHOOSECARD": m.choosecard,
+	"PLAYEDCARDS": m.playedcards,
+	"NEWCARD": m.newcard,
+	"ENDGAME": m.endgame,
 }
 
 def handle_client(client_socket):
@@ -42,14 +42,99 @@ def handle_client(client_socket):
 
 			response = functions[type]( message_data, games );
 			if type=="JOINGAME":
-				if response.room_id in clients:
-					clients[response.room_id][message_data["username"]] = client_socket
+				# TODO Send data to re-connected players
+				# Very artesanal "Session" control
+				if message_data["room"] in clients:
+					clients[message_data["room"]][message_data["username"]] = client_socket
 				else:
-					clients[response.room_id] = {message_data["username"]:client_socket}
+					clients[message_data["room"]] = {message_data["username"]:client_socket}
+
+			elif type=="STARTGAME":
+				for room in clients:
+					if room == response.room_id:
+						# Send cards to all players
+						for player in clients[room]:
+							for game_player in  response.players:
+								if game_player["username"] == player and player != message_data["username"]:
+									#TODO send messages in new threads and improve the quality of response messages
+									clients[room][player].send(str([game_player["hand"],response.round_cards["black"],response.choosen_player]).encode())
+									break
+							
+						# Response for the player who sent START GAME
+						for game_player in  response.players:
+							if game_player["username"] ==  message_data["username"]:
+								response = [game_player["hand"], response.round_cards["black"], response.choosen_player]
+								break
+						break
+
+			elif type=="PLAYCARD":
+				# Send the played cards to the chooser
+				if len(response) == 0:
+					played_cards, chooser = m.playedcards(message_data, games)
+					for room in clients:
+						if room == message_data["room"]:
+							for player in clients[room]:
+								# Send cards to chooser
+								if chooser == player:
+									clients[room][player].send(str(cards).encode())
+								# Send round status to other players
+								else:
+									#TODO send messages in new threads
+									clients[room][player].send(str(len(response)).encode())		
+							break
+				else:
+					# Send to the players, how many players are left to play, don't send to chooser (Its sent in response)
+					chooser = games[message_data["room"]].choosen_player
+					for room in clients:
+						if room == message_data["room"]:
+							for player in clients[room]:
+									have_played = True
+									for pl in response:
+										if pl == player:
+											have_played = False
+											break
+									if have_played:
+										#TODO send messages in new threads
+										clients[room][player].send(str(len(response)).encode())
+					response = len(response)
+					
+			elif type=="CHOOSECARD":
+				# Send who winned the round to everyone
+				chooser = message_data["username"]
+				for room in clients:
+					if room == message_data["room"]:
+						for player in clients[room]:
+							if player != chooser:
+								#TODO send messages in new threads
+								clients[room][player].send(str(response).encode())
+						break
+				# Reset the new round
+				new_cards = m.newcard(games[message_data["room"]])
+				for room in clients:
+					if room == message_data["room"]:
+						for player in clients[room]:
+							if player != chooser:
+								player_set = {
+									"cards": new_cards[player],
+									"black": new_cards["black"],
+									"chooser": new_cards["choosen"]
+								}
+								#TODO send messages in new threads
+								clients[room][player].send(str(player_set).encode())
+
+						response = {
+							"black": new_cards["black"],
+							"chooser": new_cards["choosen"]
+						}
+						break
+				
+
 			client_socket.send(str(response).encode())
 
 		except:
-			# Delete and close client connection
+			# Delete client socket  and close client connection
+			# debug: traceback.print_exc()
+			print("Player disconected")
 			for room in clients:
 				for player in clients[room]:
 					if clients[room][player] == client_socket:
@@ -66,3 +151,6 @@ while True:
 	client_handler = threading.Thread(target=handle_client,args=(client,))
 	client_handler.start()
 
+# TO DO test playing a 3 round game 
+# TO DO Set a game end condition
+# TO DO Low level Anti cheat by server data copies
