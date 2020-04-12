@@ -25,10 +25,6 @@ while True:
 		client.send('PLAYCARD::{"room":"unnamed", "username": "cutepussy", "cards":[["aahW",54]]}'.encode())
 		print(client.recv(4096).decode("utf-8"))
 
-	elif message == "4":
-		client.send('NEWCARD::{"room":"unnamed", "username": "cutepussy", "cards":2}'.encode())
-		print(client.recv(4096).decode("utf-8"))
-
 	elif message == "5":
 		client.send('CHOOSECARD::{"room":"unnamed", "username": "cutepussy", "winner":"goodbunny"}'.encode())
 		print(client.recv(4096).decode("utf-8"))
