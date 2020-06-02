@@ -44,8 +44,9 @@ def startgame(message_data, games):
 			whiteCard = game.white_deck.pop()
 			player["hand"].append(whiteCard)
 			game.used_white_cards.append(whiteCard)
-	game.choosen_player = game.players[0]
+	game.choosen_player = game.players[0]["username"]
 	blackCard = game.black_deck.pop()
+	game.round_cards["cards"] = []
 	game.round_cards["black"] = blackCard
 	game.used_black_cards.append(blackCard)
 	game.phase = 0
@@ -58,16 +59,16 @@ def playcard( message_data, games ):
 	game = games[message_data["room"]]
 	print("User %s is playing %s..." % (message_data["username"], message_data["cards"] ))
 	game.round_cards["cards"].append([message_data["username"],message_data["cards"]])
-	left_players = game.left_players.remove(message_data["username"])
+	game.left_players.remove(message_data["username"])
 	# Delete cards from hand in server
 	for player in game.players:
 		if player["username"] == message_data["username"]:
 			for hand_card in player["hand"]:
 				player["hand"].remove(hand_card)
 			break
-	if len(left_players) == 0:
+	if len(game.left_players) == 0:
 		game.round_phase = 1
-	return left_players
+	return game.left_players.copy()
 
 def playedcards( message_data, games ):
 	game = games[ message_data["room"] ]
@@ -90,6 +91,7 @@ def choosecard( message_data, games ):
 					player["score"] += 20
 					return game.round_winner
 
+# Error here
 def newcard(game):
 	print("Giving new cards...")
 	new_round = {}
@@ -113,7 +115,7 @@ def newcard(game):
 def setChooser(game):
 	for i in range(len(game.players)):
 		if(game.players[i]["username"]==game.choosen_player):
-			game.choosen_player = game.players[(i+1)%len(game.players)]
+			game.choosen_player = game.players[(i+1)%len(game.players)]["username"]
 			return game.choosen_player 
 			
 def endgame( message_data, games):

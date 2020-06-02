@@ -5,7 +5,7 @@ import json
 import traceback
 
 bind_ip="127.0.0.1"
-bind_port=670
+bind_port=6000
 
 server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
@@ -33,6 +33,7 @@ def handle_client(client_socket):
 	while True:
 		try:
 			request = client_socket.recv(4096).decode("utf-8")
+			print(request)
 			type = request.split('::')[0]
 			data = request.split('::')[1]
 
@@ -69,6 +70,7 @@ def handle_client(client_socket):
 
 			elif type=="PLAYCARD":
 				# Send the played cards to the chooser
+				print("Players left: " + str(len(response)))
 				if len(response) == 0:
 					played_cards, chooser = m.playedcards(message_data, games)
 					for room in clients:
@@ -76,12 +78,17 @@ def handle_client(client_socket):
 							for player in clients[room]:
 								# Send cards to chooser
 								if chooser == player:
-									clients[room][player].send(str(cards).encode())
+									print("Sending cards to chooser (",player,")...")
+									clients[room][player].send(str(played_cards).encode())
+								
 								# Send round status to other players
-								else:
+								elif message_data["username"] != player:
 									#TODO send messages in new threads
+									print("Sending player  (",player,") that winner is being choosen...")
 									clients[room][player].send(str(len(response)).encode())		
 							break
+					print("Sending last player response (",message_data["username"],")...")
+					response = len(response)
 				else:
 					# Send to the players, how many players are left to play, don't send to chooser (Its sent in response)
 					chooser = games[message_data["room"]].choosen_player
@@ -90,12 +97,14 @@ def handle_client(client_socket):
 							for player in clients[room]:
 									have_played = True
 									for pl in response:
-										if pl == player:
+										if pl == player or message_data["username"] == player:
 											have_played = False
 											break
 									if have_played:
 										#TODO send messages in new threads
+										print("Sending player  (",player,") how many are left...")
 										clients[room][player].send(str(len(response)).encode())
+					print("Sending recent player(",message_data["username"],") response...")
 					response = len(response)
 					
 			elif type=="CHOOSECARD":
@@ -133,7 +142,8 @@ def handle_client(client_socket):
 
 		except:
 			# Delete client socket  and close client connection
-			# debug: traceback.print_exc()
+			# debug: 
+			traceback.print_exc()
 			print("Player disconected")
 			for room in clients:
 				for player in clients[room]:

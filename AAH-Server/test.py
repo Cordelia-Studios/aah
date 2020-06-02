@@ -1,39 +1,69 @@
 import socket
+import json
+
+def receive(client):
+	raw = client.recv(4096).decode("utf-8")
+	filtered = json.loads(raw.replace("'", '"'))
+	return filtered
+
+def gethando(client,h,b,p):
+	data = receive(client)
+	h = data[0]
+	b = data[1]
+	p = data[2]
+	print("Za Hando: ",h,"\n Black Card: ",b,"\n Whos picking: ",p)
+	return h,b,p
 
 target_host="127.0.0.1"
-target_port=670
+target_port=6000
 
 origin_host="127.0.0.1"
-origin_port=671
+origin_port=6000
+
+myhand = []
+blackhawk = []
+pickle = ""
+
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))
-print("Joining game...")
+print("cutepussy is Joining game...")
 client.send('JOINGAME::{"room":"unnamed", "username": "cutepussy", "decks":["BASE"]}'.encode())
 print(client.recv(4096).decode("utf-8"))
+myhand,blackhawk,pickle = gethando(client,myhand,blackhawk,pickle)
 while True:
 	message = input("Code?")
-	elif message == "1":
+	if message == "1":
 		client.send('JOINGAME::{"room":"unnamed", "username": "goodbunny", "decks":["BASE"]}'.encode())
-		print(client.recv(4096).decode("utf-8"))
+		rawData = client.recv(4096).decode("utf-8")
+		print(rawData)
 
 	elif message == "2":
 		client.send('STARTGAME::{"room":"unnamed", "username": "cutepussy"}'.encode())
-		print(client.recv(4096).decode("utf-8"))
+		data = receive(client)
+		myhand = data[0]
+		blackhawk = data[1]
+		pickle = data[2]
+		print("Za Hando: ",myhand,"\n Black Card: ",blackhawk,"\n Whos picking: ",pickle)
 
 	elif message == "3":
-		client.send('PLAYCARD::{"room":"unnamed", "username": "cutepussy", "cards":[["aahW",54]]}'.encode())
-		print(client.recv(4096).decode("utf-8"))
+		newsend = str(myhand[:blackhawk[2]])
+		sendStr = 'PLAYCARD::{"room":"unnamed", "username": "cutepussy", "cards":'+newsend+'}'
+		client.send(str(sendStr).replace("'",'"').encode())
+		data = receive(client)
+		print(data)
 
 	elif message == "5":
 		client.send('CHOOSECARD::{"room":"unnamed", "username": "cutepussy", "winner":"goodbunny"}'.encode())
 		print(client.recv(4096).decode("utf-8"))
 
 	elif message == "10":
-		print(client.recv(4096).decode("utf-8"))
+		print(receive(client))
 
 	elif message == "11":
 		client.close()
+ 
+
 """
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
