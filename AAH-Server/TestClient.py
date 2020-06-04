@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 
 def receive(client):
 	raw = client.recv(4096).decode("utf-8")
@@ -14,12 +15,49 @@ def gethando(client,h,b,p):
 	p = data[2]
 	print("Za Hando: ",myhand,"\n Black Card: ",blackhawk,"\n Whos picking: ",pickle)
 
-def mainMenu():
-	print("1. Join Game")
-	print("2. Start Game")
+def selectUsername():
+	defUsernames = ["Slifer", "cutepussy", "goodbunny"]
+	for i in range(len(defUsernames)):
+		print(i+1, ". ", defUsernames[i])
+	selection = int(input("> "))
+	return defUsernames[selection]
+
+
+def mainMenu(owner):
+	if(!owner):
+		print("1. Join Game")
+	if (owner):
+		print("2. Start Game")
 	print("3. Exit Ctrl+C")
 	selection = int(input("> "))
-	return selection;
+	return selection
+
+def playMenu():
+	print("1. Play White Card")
+	print("2. See Scores")
+	print("3. Exit Ctrl+C")
+	selection = int(input("> "))
+	return selection
+
+def playCard(hand,roundBlackCard):
+	print("Play ", roundBlackCard[2]," cards:")
+	cards = []
+	for card in range(roundBlackCard[2]):
+		for i in range(len(hand)):
+			print(i+1, ". ", hand[i])
+		selection = int(input("> "))
+		cards.append(hand.pop(selection-1))
+	return cards
+
+def chosCard(whiteCards, blackCard):
+	print("Choose winner card:")
+	for i in range(len(whiteCards)):
+		print(i+1,". ",end="")
+		for k in range(blackCard[2]):
+			print(whiteCards[i][k+1],end=", ")
+		print()
+	selection = int(input("> "))-1
+	return whiteCards[selection][0]
 
 # Network config
 target_host="127.0.0.1"
@@ -29,20 +67,25 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((target_host,target_port))
 
 # Player and Game Config
-username = "Slifer"
+username = ""
 roomName = "Room 1"
 decks = '["BASE"]'
 hand = []
 roundBlackCard = []
+roundCards = []
 chooser = False
 scores = {username: 0}
 owner = False
+ownerName = ""
 roundPhase = -1
+nPlayers = 0
 
+
+username = selectUsername();
 
 selection = 1;
 while(selection == 1):
-	selection = mainMenu()
+	selection = mainMenu(owner)
 	if(selection == 1): #Join Game
 		print("Joining game as ", username, "...")
 		message = 'JOINGAME::{"room":"'+roomName+'", "username": "'+username+'", "decks":'+decks+'}'
@@ -53,6 +96,16 @@ while(selection == 1):
 			print("Joined to game room "+roomName+" as Room Master")
 		else:
 			print("Joined to room "+roomName)
+			print("Waiting game to start")
+			response = receive(clientSocket)
+			hand = response[0]
+			roundBlackCard = response[1]
+			chooserName = response[2]
+			if chooserName == username: chooser = True
+			roundPhase = 0
+			print("Hand: ",len(hand)," White Cards")
+			print("Black card: ",roundBlackCard)
+			print("Choosing card: ",chooser,", ",response[2])
 
 	elif(selection == 2): #Start Game
 		if owner:
@@ -62,19 +115,60 @@ while(selection == 1):
 			response = receive(clientSocket)
 			hand = response[0]
 			roundBlackCard = response[1]
-			if response[2] == username: chooser = True
+			chooserName = response[2]
+			if chooserName == username: chooser = True
 			roundPhase = 0
 			print("Hand: ",len(hand)," White Cards")
 			print("Black card: ",roundBlackCard)
 			print("Choosing card: ",chooser,", ",response[2])
 		else:
 			print("Only the Room Master, our lord and ruler can start the game")
-			print("Waiting game to start")
-			print(receive(clientSocket))
+			
 
 	elif(selection == 3): #Exit Game
 		clientSocket.close()
 		print("Nice, Go away, and never come back")
+		sys.exit(0)
+
+while(selection != 10):
+	if(chooser):
+		while(roundCards is not dict):
+			roundCards = receive(clientSocket)
+		roundCards
+		winner = chosCard(roundCards["cards"], roundCards["black"])
+		message = 'CHOOSECARD::{"room":"'+roomName+'", "username": "'+username+'", "winner":"'+winner+'"}'
+		message = message.replace("'", '"')
+		clientSocket.send(message.encode)
+		chooser = False
+	else:
+		selection = playMenu();
+		if(selection == 1): # Play Card
+			cards = playCard(hand, roundBlackCard)
+			message = 'PLAYCARD::{"room":"'+roomName+'", "username": "'+username+'", "cards":'+cards+'}'
+			message = message.replace("'", '"')
+			print(message)
+			clientSocket.send(message.encode())
+
+			# Wait for all players
+			leftPlayers = receive(clientSocket)
+			while(leftPlayers < 0):
+				print(leftPlayers, " players left.")
+				leftPlayers = receive(clientSocket)
+
+			print(chooserName," is choosing the winner.")
+			roundWinner = receive(clientSocket)
+			if roundWinner["username"] == username:
+				print("You winned the round!")
+			else:
+				print(roundWinner["username"]+" winned the round.")
+			scores[roundWinner["username"]] +=1
+
+		elif(selection == 2): # See Scores
+			print(scores)
+		elif(selection == 3):
+			sys.exit(0)
+
+	if(played == True)
 
 """
 print("Joining game...")

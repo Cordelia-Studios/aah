@@ -104,7 +104,7 @@ def handle_client(client_socket):
 										#TODO send messages in new threads
 										print("Sending player  (",player,") how many are left...")
 										clients[room][player].send(str(len(response)).encode())
-					print("Sending recent player(",message_data["username"],") response...")
+					print("Sending recent player (",message_data["username"],") response...")
 					response = len(response)
 					
 			elif type=="CHOOSECARD":
@@ -117,6 +117,7 @@ def handle_client(client_socket):
 								#TODO send messages in new threads
 								clients[room][player].send(str(response).encode())
 						break
+						
 				# Reset the new round
 				new_cards = m.newcard(games[message_data["room"]])
 				for room in clients:

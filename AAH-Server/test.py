@@ -1,3 +1,24 @@
+def chosCard(whiteCards, blackCard):
+	print("Choose winner card:")
+	for i in range(len(whiteCards)):
+		print(i+1,". ",end="")
+		for k in range(blackCard[2]):
+			print(whiteCards[i][k+1],end=", ")
+		print()
+	selection = int(input("> "))-1
+	return whiteCards[selection][0]
+
+
+a = {"cards": [
+		["username",["aahW",56],["aahW",57]],
+		["Paco    ",["aahW",65],["aahW",66]]
+	],
+	 "black": ["aahB",20,2]}
+print(chosCard(a["cards"],a["black"]))
+
+
+
+"""
 import socket
 import json
 
@@ -64,7 +85,7 @@ while True:
 		client.close()
  
 
-"""
+
 
 client= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((target_host,target_port))

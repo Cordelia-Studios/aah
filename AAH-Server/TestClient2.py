@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 
 def receive(client):
 	raw = client.recv(4096).decode("utf-8")
@@ -19,7 +20,34 @@ def mainMenu():
 	print("2. Start Game")
 	print("3. Exit Ctrl+C")
 	selection = int(input("> "))
-	return selection;
+	return selection
+
+def playMenu(chooser):
+	if(chooser):
+		print("1. Choose Winner Card")
+	else:
+		print("1. Play White Card")
+	print("2. See Scores")
+	print("3. Exit Ctrl+C")
+	selection = int(input("> "))
+	return selection
+
+def playCard(hand,roundBlackCard):
+	print("Play ", roundBlackCard[2]," cards:")
+	cards = []
+	for card in range(roundBlackCard[2]):
+		for i in range(len(hand)):
+			print(i+1, ". ", hand[i])
+		selection = int(input("> "))
+		cards.append(hand.pop(selection-1))
+	return cards
+
+def chosCard(roundCards, blackCard):
+	print("Choose winner card:")
+	for i in range(len(roundCards)):
+		print(i+1, ". ", roundCards[i])
+	selection = int(input("> "))
+	return roundCards[selection]
 
 # Network config
 target_host="127.0.0.1"
@@ -75,6 +103,24 @@ while(selection == 1):
 	elif(selection == 3): #Exit Game
 		clientSocket.close()
 		print("Nice, Go away, and never come back")
+		sys.exit(0)
+
+
+while(selection != 10):
+	selection = playMenu(chooser);
+	if(selection == 1): # Play/Choose Card
+		if(chooser):	# Choose Card
+			cards = chosCard(roundWhiteCards, roundBlackCard)
+			message = 'PLAYCARD::{"room":"'+roomName+'", "username": "'+username+'", "cards":'+cards+'}'
+			print(message.replace("'", '"'))
+		else:			# Choose Card
+			cards = playCard(hand, roundBlackCard)
+		print(cards)
+	elif(selection == 2): # See Scores
+		print(scores)
+	elif(selection == 3):
+		sys.exit(0)
+
 
 """
 print("Joining game...")
