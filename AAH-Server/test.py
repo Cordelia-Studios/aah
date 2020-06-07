@@ -1,20 +1,22 @@
 def chosCard(whiteCards, blackCard):
+	print(whiteCards)
 	print("Choose winner card:")
 	for i in range(len(whiteCards)):
 		print(i+1,". ",end="")
 		for k in range(blackCard[2]):
-			print(whiteCards[i][k+1],end=", ")
+			print("i: ",i,", k:",k)
+			print(whiteCards[i][1][k],end=", ")
 		print()
 	selection = int(input("> "))-1
 	return whiteCards[selection][0]
 
 
-a = {"cards": [
-		["username",["aahW",56],["aahW",57]],
-		["Paco    ",["aahW",65],["aahW",66]]
-	],
+a = {"cards": [['cutepussy', [['aahW', 258], ['aahW', 374]]]],
 	 "black": ["aahB",20,2]}
-print(chosCard(a["cards"],a["black"]))
+if isinstance(a,dict):
+	print(chosCard(a["cards"],a["black"]))
+else:
+	print("not dict, is a ", type(a))
 
 
 
@@ -131,3 +133,5 @@ response=client.recv(4096)
 print( response )
 client.close()
 """
+while True:
+	0 == 0

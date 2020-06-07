@@ -20,11 +20,11 @@ def selectUsername():
 	for i in range(len(defUsernames)):
 		print(i+1, ". ", defUsernames[i])
 	selection = int(input("> "))
-	return defUsernames[selection]
+	return defUsernames[selection-1]
 
 
 def mainMenu(owner):
-	if(!owner):
+	if(not owner):
 		print("1. Join Game")
 	if (owner):
 		print("2. Start Game")
@@ -54,7 +54,7 @@ def chosCard(whiteCards, blackCard):
 	for i in range(len(whiteCards)):
 		print(i+1,". ",end="")
 		for k in range(blackCard[2]):
-			print(whiteCards[i][k+1],end=", ")
+			print(whiteCards[i][1][k],end=", ")
 		print()
 	selection = int(input("> "))-1
 	return whiteCards[selection][0]
@@ -67,7 +67,7 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((target_host,target_port))
 
 # Player and Game Config
-username = ""
+username = selectUsername();
 roomName = "Room 1"
 decks = '["BASE"]'
 hand = []
@@ -80,11 +80,8 @@ ownerName = ""
 roundPhase = -1
 nPlayers = 0
 
-
-username = selectUsername();
-
-selection = 1;
-while(selection == 1):
+selection = 3;
+while(selection == 3 or (owner and selection != 2)):
 	selection = mainMenu(owner)
 	if(selection == 1): #Join Game
 		print("Joining game as ", username, "...")
@@ -130,23 +127,26 @@ while(selection == 1):
 		print("Nice, Go away, and never come back")
 		sys.exit(0)
 
-while(selection != 10):
+while(selection != 9):
 	if(chooser):
-		while(roundCards is not dict):
+		roundCards = receive(clientSocket)
+		while (not isinstance(roundCards,dict)):
 			roundCards = receive(clientSocket)
-		roundCards
+			print(roundCards, " players left")
 		winner = chosCard(roundCards["cards"], roundCards["black"])
 		message = 'CHOOSECARD::{"room":"'+roomName+'", "username": "'+username+'", "winner":"'+winner+'"}'
 		message = message.replace("'", '"')
-		clientSocket.send(message.encode)
+		clientSocket.send(message.encode())
 		chooser = False
+		newCards = receive(clientSocket)
+		roundBlackCard = newCards["black"]
+		chooserName = newCards["chooser"]
 	else:
 		selection = playMenu();
 		if(selection == 1): # Play Card
 			cards = playCard(hand, roundBlackCard)
-			message = 'PLAYCARD::{"room":"'+roomName+'", "username": "'+username+'", "cards":'+cards+'}'
+			message = 'PLAYCARD::{"room":"'+roomName+'", "username": "'+username+'", "cards":'+str(cards)+'}'
 			message = message.replace("'", '"')
-			print(message)
 			clientSocket.send(message.encode())
 
 			# Wait for all players
@@ -163,12 +163,18 @@ while(selection != 10):
 				print(roundWinner["username"]+" winned the round.")
 			scores[roundWinner["username"]] +=1
 
+			newCards = receive(clientSocket) # Da cartas blancas nuevas, la carta negra y quien escoge la siguiente ronda
+			hand.extend(newCards["white"])
+			roundBlackCard = newCards["black"]
+			chooserName = newCards["chooser"]
+			if(chooserName == username): chooser = True
+
 		elif(selection == 2): # See Scores
 			print(scores)
-		elif(selection == 3):
+		elif(selection == 9):
 			sys.exit(0)
 
-	if(played == True)
+	
 
 """
 print("Joining game...")

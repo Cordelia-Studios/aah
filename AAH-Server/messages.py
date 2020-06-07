@@ -63,7 +63,7 @@ def playcard( message_data, games ):
 	# Delete cards from hand in server
 	for player in game.players:
 		if player["username"] == message_data["username"]:
-			for hand_card in player["hand"]:
+			for hand_card in message_data["cards"]:
 				player["hand"].remove(hand_card)
 			break
 	if len(game.left_players) == 0:
@@ -94,22 +94,27 @@ def choosecard( message_data, games ):
 # Error here
 def newcard(game):
 	print("Giving new cards...")
-	new_round = {}
+	new_round = {"players":{}}
 	for player in game.players:
-		if player ["username"] != game.choosen_player:
-			new_round[player] = []
-			while len(player["hand"]) < 10:
-				whiteCard = game.white_deck.pop()
-				player["hand"].append(whiteCard)
-				game.used_white_cards.append(whiteCard)
-				new_round[player].append(whiteCard)
+		new_round["players"][player["username"]] = []
+		while len(player["hand"]) < 10:
+			print(player["hand"])
+			whiteCard = game.white_deck.pop()
+			player["hand"].append(whiteCard)
+			game.used_white_cards.append(whiteCard)
+			new_round["players"][player["username"]].append(whiteCard)
 	blackCard = game.black_deck.pop()
 	game.used_black_cards.append(blackCard)
 	new_round["black"] = blackCard
-	new_round["choosen"] = setChooser(game,game.choosen_player)
+	new_round["choosen"] = setChooser(game)
 	game.round += 1
 	game.round_phase = 0
-	game.round_cards = {}
+	game.round_cards["cards"] = []
+	game.round_cards["black"] = blackCard
+	game.left_players = []
+	for i in range(len(game.players)):
+		if game.players[i]["username"] != new_round["choosen"]:
+			game.left_players.append(game.players[i]["username"]) 
 	return new_round 
 
 def setChooser(game):

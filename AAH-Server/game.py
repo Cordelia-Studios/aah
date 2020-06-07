@@ -45,6 +45,11 @@ class Game:
 
 	choosen_player = ""
 
+	def __str__(self):
+		data = "room id:" + room_id + "\nplayers" + players + "\nround" + round_cards
+		
+		return data
+
 
 
 

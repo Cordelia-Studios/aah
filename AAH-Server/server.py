@@ -120,12 +120,13 @@ def handle_client(client_socket):
 						
 				# Reset the new round
 				new_cards = m.newcard(games[message_data["room"]])
+				print(new_cards)
 				for room in clients:
 					if room == message_data["room"]:
 						for player in clients[room]:
 							if player != chooser:
 								player_set = {
-									"cards": new_cards[player],
+									"white": new_cards["players"][player],
 									"black": new_cards["black"],
 									"chooser": new_cards["choosen"]
 								}
@@ -133,11 +134,12 @@ def handle_client(client_socket):
 								clients[room][player].send(str(player_set).encode())
 
 						response = {
+							"white": [],
 							"black": new_cards["black"],
 							"chooser": new_cards["choosen"]
 						}
 						break
-				
+				print("Starting new round...")
 
 			client_socket.send(str(response).encode())
 
