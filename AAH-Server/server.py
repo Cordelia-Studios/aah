@@ -4,6 +4,7 @@ import messages as m
 import json
 import traceback
 
+serverVersion = "v:1.0 Alpha Dev"
 bind_ip="127.0.0.1"
 bind_port=6000
 
@@ -164,6 +165,5 @@ while True:
 	client_handler = threading.Thread(target=handle_client,args=(client,))
 	client_handler.start()
 
-# TO DO test playing a 3 round game 
 # TO DO Set a game end condition
 # TO DO Low level Anti cheat by server data copies

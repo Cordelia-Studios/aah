@@ -13,6 +13,11 @@ def chosCard(whiteCards, blackCard):
 
 a = {"cards": [['cutepussy', [['aahW', 258], ['aahW', 374]]]],
 	 "black": ["aahB",20,2]}
+
+
+for b in a:
+	print(b)
+	
 if isinstance(a,dict):
 	print(chosCard(a["cards"],a["black"]))
 else:

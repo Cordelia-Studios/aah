@@ -2,18 +2,13 @@ import socket
 import json
 import sys
 
+# BIG TODO - on message receive, use 2 types, NPM (No problem Message) / SYN (Data Corrupted, re-syncing player)
+
 def receive(client):
 	raw = client.recv(4096).decode("utf-8")
 	#print(raw)
 	filtered = json.loads(raw.replace("'", '"'))
 	return filtered
-
-def gethando(client,h,b,p):
-	data = receive(client)
-	h = data[0]
-	b = data[1]
-	p = data[2]
-	print("Za Hando: ",myhand,"\n Black Card: ",blackhawk,"\n Whos picking: ",pickle)
 
 def selectUsername():
 	defUsernames = ["Slifer", "cutepussy", "goodbunny"]
